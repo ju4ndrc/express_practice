@@ -1,8 +1,11 @@
+import {readFileSync} from 'node:fs'
 import express from 'express'
 
 const PORT = process.env.PORT ?? 3000
 
 const app = express()
+
+const jobs = readFileSync('./jobs.json', 'utf-8')
 
 app.use((req,res,next)=>{
     const timeString = new Date().toLocaleTimeString()
@@ -27,13 +30,7 @@ app.get('/healthy',(req,res)=>{
 )
 
 app.get('/get-jobs',(req,res)=>{
-    return res.json({
-        jobs:[
-            {id:1, title:'Front dev'},
-            {id:2, title:'Front dev'},
-            {id:3, title:'Front dev'},
-        ]
-    })
+    return res.json(jobs)
 })
 
 app.get('/get-single-job/:id',(req,res)=>{
