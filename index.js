@@ -26,7 +26,31 @@ app.get('/healthy',(req,res)=>{
 }
 )
 
+app.get('/get-jobs',(req,res)=>{
+    return res.json({
+        jobs:[
+            {id:1, title:'Front dev'},
+            {id:2, title:'Front dev'},
+            {id:3, title:'Front dev'},
+        ]
+    })
+})
 
+app.get('/get-single-job/:id',(req,res)=>{
+    const {id} = req.params //parametro dinamico(son cadenas de texto)se debe transformar
+    const idNumber = Number(id) //aqui se combierte a number
+    return res.json({
+        job:{idNumber,title:`job with id ${id}`}
+    })
+})
+//ruta opcionales
+app.get('/a{b}cd',(req,res)=>{
+    return res.send('abcd o acd')
+})
+//comdin
+app.get('/aa*aa',(req,res)=>{
+    return res.send('aaa(comodin)aaa')
+})
 app.listen(PORT,()=>{
     console.log(`serivdor http://localhost:${PORT}`)
 })
