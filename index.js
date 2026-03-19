@@ -1,11 +1,12 @@
-import {readFileSync} from 'node:fs'
+
 import express from 'express'
+import jobs from './jobs.json' with {type:'json'}
 
 const PORT = process.env.PORT ?? 3000
 
 const app = express()
 
-const jobs = readFileSync('./jobs.json', 'utf-8')
+
 
 app.use((req,res,next)=>{
     const timeString = new Date().toLocaleTimeString()
@@ -30,7 +31,17 @@ app.get('/healthy',(req,res)=>{
 )
 
 app.get('/get-jobs',(req,res)=>{
-    return res.json(jobs)
+
+    const {text , title , level, technology, offset} = req.query
+    let filteredJobs = jobs
+    if(text){
+        const searchTerm = text.toLowerCase()
+        filteredJobs = filteredJobs.filter(job =>
+            job.titulo.toLowerCase().includes(searchTerm) || job.descripcion.toLowerCase().includes(searchTerm)
+        )
+    }
+
+    return res.json(filteredJobs)
 })
 
 app.get('/get-single-job/:id',(req,res)=>{
