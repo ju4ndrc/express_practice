@@ -32,7 +32,7 @@ app.get('/healthy',(req,res)=>{
 
 app.get('/get-jobs',(req,res)=>{
 
-    const {text , title , level, technology, offset} = req.query
+    const {text , title , level, limit = 10, technology, offset = 0} = req.query
     let filteredJobs = jobs
     if(text){
         const searchTerm = text.toLowerCase()
@@ -41,24 +41,61 @@ app.get('/get-jobs',(req,res)=>{
         )
     }
 
-    return res.json(filteredJobs)
+    const limitNumber = Number(limit)
+    const offsetNumber = Number(offset)
+
+    const paginatedJobs = filteredJobs.slice(offsetNumber, offsetNumber + limitNumber)
+   
+    return res.json(paginatedJobs)
 })
 
 app.get('/get-single-job/:id',(req,res)=>{
     const {id} = req.params //parametro dinamico(son cadenas de texto)se debe transformar
-    const idNumber = Number(id) //aqui se combierte a number
-    return res.json({
-        job:{idNumber,title:`job with id ${id}`}
-    })
+    
+    const job = jobs.find(job => job.id === id)
+    if(!job){
+        return    res.status(404).json({error:'Job not found'})
+    }
+    return res.json(job)
 })
-//ruta opcionales
-app.get('/a{b}cd',(req,res)=>{
-    return res.send('abcd o acd')
+
+app.post('/create-job',(req,res)=>{
+    const {titulo, empresa,ubicacion , data} = req.body
+
+    const newJob= {
+        id: crypto.randomUUID(),
+        titulo,
+        empresa,
+        ubicacion ,
+        data
+
+    }
+    jobs.push(newJob)//en una db se hace con un insert
+
+    return res.status(201).json(newJob)
 })
-//comdin
-app.get('/aa*aa',(req,res)=>{
-    return res.send('aaa(comodin)aaa')
+
+app.get('/update-job/:id',(req,res)=>{
+    const {id} = req.params //parametro dinamico(son cadenas de texto)se debe transformar
+    
+    const job = jobs.find(job => job.id === id)
+    if(!job){
+        return    res.status(404).json({error:'Job not found'})
+    }
+    jobs[job]={
+        ...jobs[job],title
+    }
+    return res.status(201).json(job)
 })
+
+app.delete('/delete-job/:id',(req,res)=>{
+    const {id} = req.params
+
+    jobs = jobs.filter(job => job.id === id)
+
+    return res.status(204).json()
+})
+
 app.listen(PORT,()=>{
     console.log(`serivdor http://localhost:${PORT}`)
 })
